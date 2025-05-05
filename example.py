@@ -1,5 +1,3 @@
-# !pip install transformers
-
 import soundfile as sf
 import torch
 import librosa
@@ -11,8 +9,8 @@ from torchinfo import summary
 Possible interesting models to use:
 - facebook/wav2vec2-base-960h
 - facebook/wav2vec2-large-960h
-- mrrubino/wav2vec2-large-xlsr-53-l2-arctic-phoneme PAS MAL OUAIS
-- slplab/wav2vec2_xlsr50k_english_phoneme PAS MAL OUAIS
+- mrrubino/wav2vec2-large-xlsr-53-l2-arctic-phoneme WE CAN USE THIS ONE OR...
+- slplab/wav2vec2_xlsr50k_english_phoneme WE CAN USE THIS ONE
 - Bluecast/wav2vec2-Phoneme FACILE À LIRE MAIS SOURCES BIZARRES UN PEU
 '''
 
@@ -23,8 +21,8 @@ Possible interesting models to use:
 
 # Load model directly other than facebook
 
-processor = AutoProcessor.from_pretrained("Bluecast/wav2vec2-Phoneme")
-model = AutoModelForCTC.from_pretrained("Bluecast/wav2vec2-Phoneme")
+processor = AutoProcessor.from_pretrained("mrrubino/wav2vec2-large-xlsr-53-l2-arctic-phoneme")
+model = AutoModelForCTC.from_pretrained("mrrubino/wav2vec2-large-xlsr-53-l2-arctic-phoneme")
 
 # Check model summary
 
