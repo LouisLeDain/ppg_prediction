@@ -13,6 +13,7 @@ class PPGPipeline():
     def __init__(self, sample_rate, gpu=None):
         self.phones = ppgs.ppgs.phonemes.PHONEMES  
         self.gpu = gpu
+        self.sample_rate = sample_rate
         self.audio_file = None
         self.audio = None
         self.ppgs = None
@@ -28,38 +29,40 @@ class PPGPipeline():
         audio_name, _ = os.path.splitext(base_name)
 
         self.audio_file = audio_name
-        self.audio = ppgs.load.audio(audio_file)
+        self.audio = ppgs.load.audio(audio_path)
 
-    def compute_ppgs(self, print = False):
+    def compute_ppgs(self, should_print = False):
         # Infer PPGs
         audio = self.audio
         sample_rate = self.sample_rate
         gpu = self.gpu
         self.ppgs = ppgs.from_audio(audio = audio, sample_rate = sample_rate, gpu = gpu)
-        self.ppgs_array = self.ppgs.to(torch.float32).numpy()
+        self.ppgs_array = self.ppgs.to(torch.float32).numpy().squeeze(0)
         self.frame_to_phoneme = self.ppgs_array.transpose(1, 0)
 
         # Infer corresponding sequence
+
         sequence_ids = self.frame_to_phoneme.argmax(axis=1)
-        decoding = lambda x : self.phones[x]
-        decoded_sequence = decoding(sequence_ids)
+        decode = lambda x: self.phones[x]
+        decoded_sequence = [decode(i) for i in sequence_ids]
+        
         cleaned_sequence = [decoded_sequence[i] for i in range(1,len(decoded_sequence)-1) if decoded_sequence[i] != decoded_sequence[i-1]]
         self.sequence_ids = sequence_ids
         self.sequence = cleaned_sequence
 
-        if print:
+        if should_print :
             print(f"PPGs sequence: {self.sequence}")
     
-    def save_ppgs(self, save_folder, print = False):
+    def save_ppgs(self, save_folder, should_print = False):
         # Save PPGs
         save_path = os.path.join(save_folder, f"{self.audio_file}_ppgs.npy")
         np.save(save_path, self.ppgs_array)
 
-        if print:
+        if should_print:
             print(f"PPGs saved to {save_path}")
 
 
-    def visualize_ppgs(self, save_folder, print = False):
+    def visualize_ppgs(self, save_folder, should_print = False):
         save_path = os.path.join(save_folder, f"{self.audio_file}_ppgs.png")
         
         # Show PPGs
@@ -70,25 +73,25 @@ class PPGPipeline():
         plt.colorbar()
         plt.savefig(save_path)
 
-        if print:
+        if should_print:
             print(f"PPGs visualization saved to {save_path}")
 
-    def forward(self, audio_file, save_folder = None, visualization_save_folder = None, vizualise = False, save = False, print = False):
+    def forward(self, audio_file, save_folder = None, visualization_save_folder = None, visualize = False, save = False, should_print = False):
         # Check if audio_file is consists of a list of files
         if isinstance(audio_file, list):
             for file in audio_file:
-                self.forward(file, save_folder, visualization_save_folder, vizualise, save, print)
+                self.forward(file, save_folder, visualization_save_folder, visualize, save, should_print)
         
         # Load and process audio
         self.load_audio(audio_file)
-        self.compute_ppgs(print=print)
+        self.compute_ppgs(should_print=should_print)
         if save:
             if save_folder is None:
                 print("Please provide a save folder")
             else: 
-                self.save_ppgs(save_folder, print=print)
-        if vizualise:
+                self.save_ppgs(save_folder, should_print=should_print)
+        if visualize:
             if visualization_save_folder is None:
                 print("Please provide a visualization save folder")
             else:
-                self.visualize_ppgs(visualization_save_folder, print=print)
+                self.visualize_ppgs(visualization_save_folder, should_print=should_print)
