@@ -1,6 +1,6 @@
 # Phoneme prediction
 
-**Current version** : Using [Max Morrison's]{https://www.maxrmorrison.com/pdfs/churchwell2024high.pdf} pythin package, this pipeline computes PPGs of audio files and offers visualization and saving tools.
+**Current version** : Using [Max Morrison's](https://www.maxrmorrison.com/pdfs/churchwell2024high.pdf) python package, this pipeline computes PPGs of audio files and offers visualization and saving tools.
 
 ![PPGs Example](ppgs.png)
 
