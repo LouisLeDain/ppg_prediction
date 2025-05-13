@@ -16,12 +16,12 @@ model = AutoModelForCTC.from_pretrained("mrrubino/wav2vec2-large-xlsr-53-l2-arct
 
 # Load audio file
 
-audio_input, sample_rate = librosa.load('data/HJK/HJK/wav/arctic_a0001.wav', sr=16000)
+audio_input, sample_rate = librosa.load('/raid/home/automatants/ledain_lou/ppg_prediction/data/HJK/HJK/wav/arctic_a0001.wav', sr=16000)
 print('Length of audio input : ', len(audio_input))
 
 # Cut into 50ms sub-recordings
 
-n_frames = int(sample_rate * 0.01)  # 10ms
+n_frames = int(sample_rate * 0.025)  # 25ms
 print(f'Number frames for 10ms sub-recordings : {n_frames}')
 
 audio_input_sub = [audio_input[start:(start+n_frames)] for start in range(0, len(audio_input), n_frames)]
@@ -63,6 +63,8 @@ print(type(transcription))
 print(f'Transcription : {transcription}')
 
 probs = F.softmax(logits, dim=-1)
+probs = probs.squeeze(1)
+print(f'Shape of probs : {probs.shape}')
 
 print(f'Number of classes : {probs.shape[1]}')
 classes = processor.tokenizer.get_vocab()
